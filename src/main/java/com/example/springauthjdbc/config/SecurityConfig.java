@@ -8,6 +8,8 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
@@ -18,6 +20,9 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.sql.DataSource;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -30,21 +35,44 @@ public class SecurityConfig {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .setName("dashboard")
-                .addScript(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION)
+                //.addScript(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION)
+                .addScript("classpath:db/schema.sql")
                 .build();
     }
     @Bean
     JdbcUserDetailsManager users(DataSource dataSource, PasswordEncoder encoder) {
+        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
+
+        jdbcUserDetailsManager.setEnableGroups(true);
+        jdbcUserDetailsManager.setEnableAuthorities(false);
+
+        List<GrantedAuthority> authorities;
+        authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        jdbcUserDetailsManager.createGroup("Admins", authorities);
+
+        authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        jdbcUserDetailsManager.createGroup("Users", authorities);
+
         UserDetails admin = User.builder()
                 .username("admin")
                 .password(encoder.encode("password"))
                 .roles("ADMIN")
                 .build();
-
         System.out.println(admin.getPassword());
-
-        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
         jdbcUserDetailsManager.createUser(admin);
+
+        UserDetails user = User.builder()
+                .username("user")
+                .password(encoder.encode("password"))
+                .roles("USER")
+                .build();
+        jdbcUserDetailsManager.createUser(user);
+
+        jdbcUserDetailsManager.addUserToGroup("user", "Users");
+        jdbcUserDetailsManager.addUserToGroup("admin", "Admins");
+
         return jdbcUserDetailsManager;
     }
 

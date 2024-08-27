@@ -16,7 +16,7 @@ pom.xml
         <artifactId>spring-boot-starter-data-jdbc</artifactId>
     </dependency>
     <dependency>    
-        <groupId>com.h2database</groupId>
+        <groupId>com.h2database</ Id>
         <artifactId>h2</artifactId>
         <scope>runtime</scope>
     </dependency>
@@ -31,3 +31,6 @@ JDBC URL: jdbc:h2:mem:dashboard
 EmbeddedDatabase - run script JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION - Create Tables to H2 Database
 Add user
 PasswordEncoder - Bcrypt
+
+## Version
+User group authorities
