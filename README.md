@@ -32,5 +32,8 @@ EmbeddedDatabase - run script JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION - Cre
 Add user
 PasswordEncoder - Bcrypt
 
-## Version
+## Version 3
 User group authorities
+
+## Version 4
+Custom Login Form

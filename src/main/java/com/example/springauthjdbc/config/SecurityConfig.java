@@ -2,9 +2,7 @@ package com.example.springauthjdbc.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,6 +22,7 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.H2;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
@@ -31,9 +30,9 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableMethodSecurity
 public class SecurityConfig {
     @Bean
-    EmbeddedDatabase dataSource() {
+    DataSource dataSource() {
         return new EmbeddedDatabaseBuilder()
-                .setType(EmbeddedDatabaseType.H2)
+                .setType(H2)
                 .setName("dashboard")
                 //.addScript(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION)
                 .addScript("classpath:db/schema.sql")
@@ -41,19 +40,19 @@ public class SecurityConfig {
     }
     @Bean
     JdbcUserDetailsManager users(DataSource dataSource, PasswordEncoder encoder) {
-        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
+        JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
 
-        jdbcUserDetailsManager.setEnableGroups(true);
-        jdbcUserDetailsManager.setEnableAuthorities(false);
+        users.setEnableGroups(true);
+        users.setEnableAuthorities(false);
 
         List<GrantedAuthority> authorities;
         authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        jdbcUserDetailsManager.createGroup("Admins", authorities);
+        users.createGroup("Admins", authorities);
 
         authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-        jdbcUserDetailsManager.createGroup("Users", authorities);
+        users.createGroup("Users", authorities);
 
         UserDetails admin = User.builder()
                 .username("admin")
@@ -61,19 +60,19 @@ public class SecurityConfig {
                 .roles("ADMIN")
                 .build();
         System.out.println(admin.getPassword());
-        jdbcUserDetailsManager.createUser(admin);
+        users.createUser(admin);
 
         UserDetails user = User.builder()
                 .username("user")
                 .password(encoder.encode("password"))
                 .roles("USER")
                 .build();
-        jdbcUserDetailsManager.createUser(user);
+        users.createUser(user);
 
-        jdbcUserDetailsManager.addUserToGroup("user", "Users");
-        jdbcUserDetailsManager.addUserToGroup("admin", "Admins");
+        users.addUserToGroup("user", "Users");
+        users.addUserToGroup("admin", "Admins");
 
-        return jdbcUserDetailsManager;
+        return users;
     }
 
 //    @Bean
@@ -94,7 +93,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions().sameOrigin())    // For h2-console
-                .formLogin(withDefaults())
+                //.formLogin(withDefaults())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .permitAll())
                 .build();
     }
 
