@@ -57,7 +57,7 @@ public class SecurityConfig {
         UserDetails admin = User.builder()
                 .username("admin")
                 .password(encoder.encode("password"))
-                .roles("ADMIN")
+                .roles("USER")
                 .build();
         System.out.println(admin.getPassword());
         users.createUser(admin);
@@ -87,9 +87,9 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.ignoringAntMatchers("/h2-console/**"))
+                .csrf(csrf -> csrf.ignoringAntMatchers("/h2-console/**", "/user/**", "/admin/**"))
                 .authorizeHttpRequests(auth -> auth
-                        .antMatchers("/h2-console/**").permitAll()
+                        .antMatchers("/h2-console/**", "/user/**", "/admin/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions().sameOrigin())    // For h2-console

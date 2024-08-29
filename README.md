@@ -37,3 +37,10 @@ User group authorities
 
 ## Version 4
 Custom Login Form
+
+## Version 5
+Use JdbcUserDetailsManager to Store the user and group inforamtion
+Use Record Class as model
+H2 Database Dump:
+SCRIPT TO 'dump.sql';
+SCRIPT SIMPLE TO 'dump.txt';
