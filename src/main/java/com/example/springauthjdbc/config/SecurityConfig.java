@@ -1,8 +1,12 @@
 package com.example.springauthjdbc.config;
 
+import com.example.springauthjdbc.service.MyJdbcUserDetailsManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -10,6 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +30,8 @@ import java.util.List;
 import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.H2;
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import com.example.springauthjdbc.service.MyJdbcUserDetailsManager;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -33,26 +40,35 @@ public class SecurityConfig {
     DataSource dataSource() {
         return new EmbeddedDatabaseBuilder()
                 .setType(H2)
-                .setName("dashboard")
+                .setName("User")
                 //.addScript(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION)
                 .addScript("classpath:db/schema.sql")
                 .build();
     }
-    @Bean
-    JdbcUserDetailsManager users(DataSource dataSource, PasswordEncoder encoder) {
-        JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
 
-        users.setEnableGroups(true);
-        users.setEnableAuthorities(false);
+    @Bean
+    AuthenticationManager authenticationManager (UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(userDetailsService);
+        authenticationProvider.setPasswordEncoder(passwordEncoder);
+
+        ProviderManager providerManager = new ProviderManager(authenticationProvider);
+        return providerManager;
+
+    }
+
+    @Bean
+    MyJdbcUserDetailsManager userDetailsManager(DataSource dataSource, PasswordEncoder encoder) {
+        MyJdbcUserDetailsManager userDetailsManager = new MyJdbcUserDetailsManager(dataSource);
 
         List<GrantedAuthority> authorities;
         authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        users.createGroup("Admins", authorities);
+        userDetailsManager.createGroup("Admins", authorities);
 
         authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-        users.createGroup("Users", authorities);
+        userDetailsManager.createGroup("Users", authorities);
 
         UserDetails admin = User.builder()
                 .username("admin")
@@ -60,19 +76,19 @@ public class SecurityConfig {
                 .roles("USER")
                 .build();
         System.out.println(admin.getPassword());
-        users.createUser(admin);
+        userDetailsManager.createUser(admin);
 
         UserDetails user = User.builder()
                 .username("user")
                 .password(encoder.encode("password"))
                 .roles("USER")
                 .build();
-        users.createUser(user);
+        userDetailsManager.createUser(user);
 
-        users.addUserToGroup("user", "Users");
-        users.addUserToGroup("admin", "Admins");
+        userDetailsManager.addUserToGroup("user", "Users");
+        userDetailsManager.addUserToGroup("admin", "Admins");
 
-        return users;
+        return userDetailsManager;
     }
 
 //    @Bean

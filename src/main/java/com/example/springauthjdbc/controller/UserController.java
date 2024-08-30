@@ -2,6 +2,7 @@ package com.example.springauthjdbc.controller;
 
 import com.example.springauthjdbc.model.GroupDto;
 import com.example.springauthjdbc.model.UserDto;
+import com.example.springauthjdbc.service.MyJdbcUserDetailsManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,7 +19,7 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private JdbcUserDetailsManager jdbcUserDetailsManager;
+    private MyJdbcUserDetailsManager userDetailsManager;
 
     @Autowired
     private PasswordEncoder encoder;
@@ -30,18 +31,18 @@ public class UserController {
                 .password(encoder.encode(userDto.password()))
                 .roles("USER")
                 .build();
-        jdbcUserDetailsManager.createUser(user);
-        jdbcUserDetailsManager.addUserToGroup(userDto.username(), "Users");
+        userDetailsManager.createUser(user);
+        userDetailsManager.addUserToGroup(userDto.username(), "Users");
     }
 
     @GetMapping("/admin/groups")
     public List<String> getGroups() {
-        return jdbcUserDetailsManager.findAllGroups();
+        return userDetailsManager.findAllGroups();
     }
 
     @GetMapping("/admin/groupusers")
     public List<String> getGroupUsers(@RequestBody GroupDto groupDto) {
-        return jdbcUserDetailsManager.findUsersInGroup(groupDto.groupName());
+        return userDetailsManager.findUsersInGroup(groupDto.groupName());
     }
 
     @PostMapping("/admin/group")
@@ -49,26 +50,26 @@ public class UserController {
         List<GrantedAuthority> authorities;
         authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_" + groupDto.authority()));
-        jdbcUserDetailsManager.createGroup(groupDto.groupName(), authorities);
+        userDetailsManager.createGroup(groupDto.groupName(), authorities);
     }
 
     @PutMapping("/admin/group")
     public void renameGroup(@RequestBody GroupDto groupDto) {
-        jdbcUserDetailsManager.renameGroup(groupDto.groupName(), groupDto.newGroupName());
+        userDetailsManager.renameGroup(groupDto.groupName(), groupDto.newGroupName());
     }
 
     @DeleteMapping("/admin/group")
     public void deleteGroup(@RequestBody GroupDto groupDto) {
-        jdbcUserDetailsManager.deleteGroup(groupDto.groupName());
+        userDetailsManager.deleteGroup(groupDto.groupName());
     }
 
     @PostMapping("/admin/usergroup")
     public void addUserToGroup(@RequestBody UserDto userDto) {
-        jdbcUserDetailsManager.addUserToGroup(userDto.username(), userDto.groupName());
+        userDetailsManager.addUserToGroup(userDto.username(), userDto.groupName());
     }
 
     @DeleteMapping("/admin/usergroup")
     public void removeUserFromGroup(@RequestBody UserDto userDto) {
-        jdbcUserDetailsManager.removeUserFromGroup(userDto.username(), userDto.groupName());
+        userDetailsManager.removeUserFromGroup(userDto.username(), userDto.groupName());
     }
 }
