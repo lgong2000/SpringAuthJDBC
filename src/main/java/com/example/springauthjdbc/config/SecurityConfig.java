@@ -103,9 +103,9 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.ignoringAntMatchers("/h2-console/**", "/user/**", "/admin/**"))
+                .csrf(csrf -> csrf.ignoringAntMatchers("/h2-console/**", "/user/**", "/admin/**", "/css/**"))
                 .authorizeHttpRequests(auth -> auth
-                        .antMatchers("/h2-console/**", "/user/**", "/admin/**").permitAll()
+                        .antMatchers("/h2-console/**", "/user/**", "/admin/**", "/css/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions().sameOrigin())    // For h2-console
