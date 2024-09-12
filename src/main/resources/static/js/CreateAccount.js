@@ -3,6 +3,9 @@ $( document ).ready(function() {
         let username = $("#username").val();
         let password = $("#password").val();
         let cpassword = $("#cpassword").val();
+        let firstname = $("#firstname").val();
+        let lastname = $("#lastname").val();
+        let email = $("#email").val();
 
         if (username == '' || password == '' || cpassword == '') {
             alert("Please fill all the fields!");
@@ -14,6 +17,9 @@ $( document ).ready(function() {
             let data = {};
             data['username'] = username;
             data['password'] = password;
+            data['firstname'] = firstname;
+            data['lastname'] = lastname;
+            data['email'] = email;
 
             $.ajax({
                 url: 'user',
