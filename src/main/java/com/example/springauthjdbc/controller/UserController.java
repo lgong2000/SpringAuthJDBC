@@ -3,13 +3,12 @@ package com.example.springauthjdbc.controller;
 import com.example.springauthjdbc.model.GroupDto;
 import com.example.springauthjdbc.model.UserDto;
 import com.example.springauthjdbc.service.MyJdbcUserDetailsManager;
+import com.example.springauthjdbc.service.MyUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -26,11 +25,12 @@ public class UserController {
 
     @PostMapping("/user")
     public void createUser(@RequestBody UserDto userDto) {
-        UserDetails user = User.builder()
-                .username(userDto.username())
-                .password(encoder.encode(userDto.password()))
-                .roles("USER")
-                .build();
+        MyUserDetails user = new MyUserDetails(userDto.username(),
+                encoder.encode(userDto.password()),
+                userDto.firstname(),
+                userDto.lastname(),
+                userDto.email(),
+                AuthorityUtils.NO_AUTHORITIES);
         userDetailsManager.createUser(user);
         userDetailsManager.addUserToGroup(userDto.username(), "Users");
     }

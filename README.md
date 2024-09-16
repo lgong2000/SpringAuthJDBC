@@ -44,3 +44,20 @@ Use Record Class as model
 H2 Database Dump:
 SCRIPT TO 'dump.sql';
 SCRIPT SIMPLE TO 'dump.txt';
+
+Group JSON
+{
+    "groupName": "Readers",
+    "authority": "Read",
+    "newGroupName": "ReadersII"
+}
+User JSON
+{
+    "username": "test0009",
+    "password": "password",
+    "firstname": "FirstT9",
+    "lastname": "LastT9",
+    "email": "test0009@bbb.ccc",
+    "groupName": "Readers",
+    "newUsername": "test0009II",
+}

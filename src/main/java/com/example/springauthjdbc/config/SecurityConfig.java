@@ -1,6 +1,7 @@
 package com.example.springauthjdbc.config;
 
 import com.example.springauthjdbc.service.MyJdbcUserDetailsManager;
+import com.example.springauthjdbc.service.MyUserDetails;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
@@ -11,15 +12,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.sql.DataSource;
@@ -28,9 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.H2;
-import static org.springframework.security.config.Customizer.withDefaults;
-
-import com.example.springauthjdbc.service.MyJdbcUserDetailsManager;
 
 @Configuration
 @EnableWebSecurity
@@ -70,19 +64,25 @@ public class SecurityConfig {
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         userDetailsManager.createGroup("Users", authorities);
 
-        UserDetails admin = User.builder()
-                .username("admin")
-                .password(encoder.encode("password"))
-                .roles("USER")
-                .build();
-        System.out.println(admin.getPassword());
+//        UserDetails admin = User.builder()
+//                .username("admin")
+//                .password(encoder.encode("password"))
+//                .authorities(AuthorityUtils.NO_AUTHORITIES)
+//                //.roles("USER")
+//                .build();
+//        System.out.println(admin.getPassword());
+        MyUserDetails admin = new MyUserDetails("admin", encoder.encode("password"),
+                "FirstA", "LastA", "admin@bbb.ccc", AuthorityUtils.NO_AUTHORITIES);
         userDetailsManager.createUser(admin);
 
-        UserDetails user = User.builder()
-                .username("user")
-                .password(encoder.encode("password"))
-                .roles("USER")
-                .build();
+//        UserDetails user = User.builder()
+//                .username("user")
+//                .password(encoder.encode("password"))
+//                .authorities(AuthorityUtils.NO_AUTHORITIES)
+//                //.roles("USER")
+//                .build();
+        MyUserDetails user = new MyUserDetails("user", encoder.encode("password"),
+                "FirstU", "LastU", "user@bbb.ccc", AuthorityUtils.NO_AUTHORITIES);
         userDetailsManager.createUser(user);
 
         userDetailsManager.addUserToGroup("user", "Users");
