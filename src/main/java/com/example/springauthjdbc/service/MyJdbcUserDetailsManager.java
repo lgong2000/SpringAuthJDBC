@@ -19,6 +19,10 @@ public class MyJdbcUserDetailsManager extends JdbcUserDetailsManager {
 
     public static final String DEF_DELETE_GROUP_MEMBER_SQL = "delete from group_members where group_id = ? and user_id = ?";
 
+    public static final String DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY = "select g.id, g.group_name, ga.authority "
+            + "from groups g, group_members gm, group_authorities ga, users u "
+            + "where u.username = ? " + "and g.id = ga.group_id " + "and g.id = gm.group_id " + "and gm.user_id = u.id";
+
     private String createUserSql = DEF_CREATE_USER_SQL;
 
     private String insertGroupMemberSql = DEF_INSERT_GROUP_MEMBER_SQL;
@@ -33,6 +37,7 @@ public class MyJdbcUserDetailsManager extends JdbcUserDetailsManager {
         setEnableGroups(true);
         setEnableAuthorities(false);
         setFindUsersInGroupSql(DEF_FIND_USERS_IN_GROUP_SQL);
+        setGroupAuthoritiesByUsernameQuery(DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY);
     }
 
     public MyJdbcUserDetailsManager(DataSource dataSource) {
