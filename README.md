@@ -45,6 +45,9 @@ H2 Database Dump:
 SCRIPT TO 'dump.sql';
 SCRIPT SIMPLE TO 'dump.txt';
 
+# Version 6 
+Remove MyUserDetails, no customize is necessary.
+
 Group JSON
 {
     "groupName": "Readers",

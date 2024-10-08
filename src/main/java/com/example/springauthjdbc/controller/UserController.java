@@ -1,12 +1,11 @@
 package com.example.springauthjdbc.controller;
 
 import com.example.springauthjdbc.model.GroupDto;
+import com.example.springauthjdbc.model.User;
 import com.example.springauthjdbc.model.UserDto;
 import com.example.springauthjdbc.service.MyJdbcUserDetailsManager;
-import com.example.springauthjdbc.service.MyUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -25,12 +24,11 @@ public class UserController {
 
     @PostMapping("/user")
     public void createUser(@RequestBody UserDto userDto) {
-        MyUserDetails user = new MyUserDetails(userDto.username(),
+        User user = new User(userDto.username(),
                 encoder.encode(userDto.password()),
                 userDto.firstname(),
                 userDto.lastname(),
-                userDto.email(),
-                AuthorityUtils.NO_AUTHORITIES);
+                userDto.email());
         userDetailsManager.createUser(user);
         userDetailsManager.addUserToGroup(userDto.username(), "Users");
     }

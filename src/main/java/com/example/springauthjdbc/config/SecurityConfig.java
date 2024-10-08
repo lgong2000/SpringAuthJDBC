@@ -1,7 +1,7 @@
 package com.example.springauthjdbc.config;
 
+import com.example.springauthjdbc.model.User;
 import com.example.springauthjdbc.service.MyJdbcUserDetailsManager;
-import com.example.springauthjdbc.service.MyUserDetails;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -71,8 +70,8 @@ public class SecurityConfig {
 //                //.roles("USER")
 //                .build();
 //        System.out.println(admin.getPassword());
-        MyUserDetails admin = new MyUserDetails("admin", encoder.encode("password"),
-                "FirstA", "LastA", "admin@bbb.ccc", AuthorityUtils.NO_AUTHORITIES);
+        User admin = new User("admin", encoder.encode("password"),
+                "FirstA", "LastA", "admin@bbb.ccc");
         userDetailsManager.createUser(admin);
 
 //        UserDetails user = User.builder()
@@ -81,8 +80,8 @@ public class SecurityConfig {
 //                .authorities(AuthorityUtils.NO_AUTHORITIES)
 //                //.roles("USER")
 //                .build();
-        MyUserDetails user = new MyUserDetails("user", encoder.encode("password"),
-                "FirstU", "LastU", "user@bbb.ccc", AuthorityUtils.NO_AUTHORITIES);
+        User user = new User("user", encoder.encode("password"),
+                "FirstU", "LastU", "user@bbb.ccc");
         userDetailsManager.createUser(user);
 
         userDetailsManager.addUserToGroup("user", "Users");
